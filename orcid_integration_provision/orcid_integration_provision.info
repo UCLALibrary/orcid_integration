@@ -1,0 +1,7 @@
+name = "ORCID Integration Provision"
+description = "Provision new accounts based on a CSV file. Meant as example (primary usage for UCLA Libraries)."
+core = "7.x"
+version = "7.x-1.0"
+package = "Other"
+dependencies[] = orcid_integration
+files[] = parsecsv/parsecsv.lib.php

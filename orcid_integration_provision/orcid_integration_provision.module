@@ -1,0 +1,79 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+function orcid_integration_provision_menu() {
+  $items = array();
+
+  $items['admin/people/orcid-import'] = array(
+    'title' => 'Import for ORCID',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('orcid_integration_provision_import'),
+    'access arguments' => array('administer users'),
+  );
+
+  return $items;
+}
+
+function orcid_integration_provision_import($form, &$form_state) {
+  $form['filepath'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Path to import file'),
+    '#description' => t('Please provide a path to the import file.'),
+    '#required' => TRUE,
+  );
+
+  return confirm_form($form, t('Do you wish to import'), '<front>');
+}
+
+function orcid_integration_provision_import_submit($form, &$form_state) {
+  $file = file_get_contents($form_state['values']['filepath']);
+  $content = new parseCSV($file);
+
+  $batch = array(
+    'operations' => array(),
+    'finished' => 'orcid_integration_provision_import_finished',
+    'title' => t('Import users for ORCID'),
+    'init_message' => t('Importing users for ORCID'),
+    'progress_message' => t('Batch @current out of @total'),
+    'error_message' => t('An error occurred processing a user.'),
+  );
+  $operations = array();
+  foreach ($content->data as $data) {
+    $batch['operations'][] = array('orcid_integration_provision_import_user', array($data));
+  }
+  batch_set($batch);
+}
+
+function orcid_integration_provision_import_user($data, &$context) {
+  $account = NULL;
+  if (!empty($data['user_id'])) {
+    $account = user_load($data['user_id']);
+  }
+  else if (!empty($data['email'])) {
+    $account = user_load_by_mail($data['email']);
+  }
+  if (empty($account)) {
+    dpm($data);
+    $account = _orcid_integration_provision_create_new_account($data);
+  }
+  dpm($account);
+}
+
+function orcid_integration_provision_import_finished(&$context) {
+  drupal_set_message(t('Users have been imported and ORCIDs claimed.'));
+}
+
+function _orcid_integration_provision_create_new_account($data) {
+  $user_info = array(
+    'name' => $data['email'],
+    'mail' => $data['email'],
+    'pass' => user_password(),
+    'status' => 1,
+  );
+  $account = new stdClass();
+  $account = user_save($account, $user_info);
+  return user_load($account->uid);
+}
+

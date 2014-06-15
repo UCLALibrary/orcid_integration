@@ -77,7 +77,7 @@ function orcid_integration_provision_import_user($data, &$context) {
     }
     if (empty($orcid)) {
       $orcid = orcid_integration_provision_new_account($account->mail, $data['first_name'], $data['last_name']);
-      drupal_set_message(t('ORCID @orcid just created. Please give up to 10 days before claiming on other sites.', array('@orcid' => $orcid));
+      drupal_set_message(t('ORCID @orcid just created. Please give up to 10 days before claiming on other sites.', array('@orcid' => $orcid)));
     }
 
     if (!empty($orcid)) {

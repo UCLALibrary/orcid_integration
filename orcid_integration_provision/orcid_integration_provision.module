@@ -85,7 +85,7 @@ function orcid_integration_provision_import_user($data, &$context) {
         'value' => $orcid,
       );
       user_save($account);
-      drupal_set_message(t('User %user claimed orcid: @orcid', array('%user' => $account->name, '@orcid' => $orcid)));
+      drupal_set_message(t('User %user claimed ORCID: @orcid', array('%user' => $account->name, '@orcid' => $orcid)));
     }
   }
 }

@@ -20,11 +20,11 @@ function orcid_integration_provision_import($form, &$form_state) {
   $form['filepath'] = array(
     '#type' => 'textfield',
     '#title' => t('Path to import file'),
-    '#description' => t('Please provide a path to the import file.'),
+    '#description' => t('Please provide a path to the import file. It should contain a header with the following columns (in any order): <code>first_name,last_name,user_id,email</code>'),
     '#required' => TRUE,
   );
 
-  return confirm_form($form, t('Do you wish to import'), '<front>');
+  return confirm_form($form, t('Do you wish to import ORCID users from CSV'), '<front>');
 }
 
 function orcid_integration_provision_import_submit($form, &$form_state) {
@@ -48,6 +48,7 @@ function orcid_integration_provision_import_submit($form, &$form_state) {
 
 function orcid_integration_provision_import_user($data, &$context) {
   $account = NULL;
+  $claimed = TRUE;
   if (!empty($data['user_id'])) {
     $account = user_load($data['user_id']);
   }
@@ -59,7 +60,8 @@ function orcid_integration_provision_import_user($data, &$context) {
   }
   $orcid = field_get_items('user', $account, 'field_orcid_id');
   if (!empty($orcid)) {
-    drupal_set_message(t('%user already using ORCID: @orcid', array('@orcid' => $orcid[0]['safe_value'], '%user' => $account->name)));
+    $orcid = $orcid[0]['safe_value'];
+    drupal_set_message(t('%user already using ORCID: @orcid', array('@orcid' => $orcid, '%user' => $account->name)));
   }
   else {
     $orcid = FALSE;
@@ -76,6 +78,7 @@ function orcid_integration_provision_import_user($data, &$context) {
       }
     }
     if (empty($orcid)) {
+      $claimed = FALSE;
       $orcid = orcid_integration_provision_new_account($account->mail, $data['first_name'], $data['last_name']);
       drupal_set_message(t('ORCID @orcid just created. Please give up to 10 days before claiming on other sites.', array('@orcid' => $orcid)));
     }
@@ -88,10 +91,34 @@ function orcid_integration_provision_import_user($data, &$context) {
       drupal_set_message(t('User %user claimed ORCID: @orcid', array('%user' => $account->name, '@orcid' => $orcid)));
     }
   }
+  if ($orcid && $claimed) {
+    $context['results']['orcid-results']['claimed'][] = array(
+      'uid' => $account->uid,
+      'orcid' => $orcid,
+    );
+  }
+  else if ($orcid && !$claimed) {
+    $context['results']['orcid-results']['provisioned'][] = array(
+      'uid' => $account->uid,
+      'orcid' => $orcid,
+    );
+  }
 }
 
-function orcid_integration_provision_import_finished(&$context) {
+function orcid_integration_provision_import_finished($success, $results, $operations) {
   drupal_set_message(t('Users have been imported and ORCIDs claimed.'));
+  drupal_set_message(t('Below list in format for csv of claiming pre-existing ORCIDs:'));
+  $content = 'user_id,orcid';
+  foreach ($results['orcid-results']['claimed'] as $result) {
+    $content .= "\n{$result['uid']},{$result['orcid']}";
+  }
+  drupal_set_message($content);
+  drupal_set_message(t('Below list in format for csv of provisioned new ORCIDs:'));
+  $content = 'user_id,orcid';
+  foreach ($results['orcid-results']['provisioned'] as $result) {
+    $content .= "\n{$result['uid']},{$result['orcid']}";
+  }
+  drupal_set_message($content);
 }
 
 function _orcid_integration_provision_create_new_account($data) {

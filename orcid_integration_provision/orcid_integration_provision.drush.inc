@@ -1,2 +1,63 @@
 <?php
 
+/**
+ * @file orcid_integration_provision.drush.inc
+ *   Drush integration for provisioning new accounts.
+ */
+
+/**
+ * Implements hook_drush_help().
+ */
+function orcid_integration_provision_drush_help($section) {
+  switch ($section) {
+    case 'drush:orcid-integration-provision':
+        return dt('This command provisions accounts based on a csv. Filepath required.');
+  }
+}
+
+/**
+ * Implements hook_drush_command().
+ */
+function orcid_integration_provision_drush_command() {
+  $items = array();
+
+  $items['orcid-integration-provision'] = array(
+    'callback' => 'orcid_integration_provision_drush_provision_users',
+    'description' => dt('Provision new/existing users from csv. Also create/claim orcid if one is not already attached.'),
+    'arguments' => array(
+      'filepath' => dt('Required. Provide absolute path to csv file. It should contain a header with the following columns (in any order): first_name,last_name,user_id,email'),
+    ),
+    'aliases' => array('oip'),
+  );
+
+  return $items;
+}
+
+/**
+ * Provisions new users.
+ */
+function orcid_integration_provision_drush_provision_users($filepath = '') {
+  if (!file_exists($filepath)) {
+    drush_die(dt('Filepath %filepath does not exist', array('%filepath' => $filepath)));
+  }
+
+  $file = file_get_contents($filepath);
+  $content = new parseCSV($file);
+
+  $batch = array(
+    'operations' => array(),
+    'finished' => 'orcid_integration_provision_import_finished',
+    'title' => t('Import users for ORCID'),
+    'init_message' => t('Importing users for ORCID'),
+    'progress_message' => t('Batch @current out of @total'),
+    'error_message' => t('An error occurred processing a user.'),
+  );
+  $operations = array();
+  foreach ($content->data as $data) {
+    $batch['operations'][] = array('orcid_integration_provision_import_user', array($data));
+  }
+  batch_set($batch);
+  $batch =& batch_get();
+  $batch['progressive'] = FALSE;
+  drush_backend_batch_process();
+}

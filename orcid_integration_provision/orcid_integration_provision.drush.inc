@@ -46,7 +46,7 @@ function orcid_integration_provision_drush_provision_users($filepath = '') {
 
   $batch = array(
     'operations' => array(),
-    'finished' => 'orcid_integration_provision_import_finished',
+    'finished' => 'orcid_integration_provision_drush_provision_users_import_finished',
     'title' => t('Import users for ORCID'),
     'init_message' => t('Importing users for ORCID'),
     'progress_message' => t('Batch @current out of @total'),
@@ -60,4 +60,20 @@ function orcid_integration_provision_drush_provision_users($filepath = '') {
   $batch =& batch_get();
   $batch['progressive'] = FALSE;
   drush_backend_batch_process();
+}
+
+function orcid_integration_provision_drush_provision_users_import_finished($success, $results, $operations) {
+  drupal_set_message(t('Users have been imported and ORCIDs claimed.'));
+  drupal_set_message(t('Below list in format for csv of claiming pre-existing ORCIDs:'));
+  $content = 'user_id,orcid';
+  foreach ($results['orcid-results']['claimed'] as $result) {
+    $content .= "\n{$result['uid']},{$result['orcid']}";
+  }
+  drupal_set_message($content);
+  drupal_set_message(t('Below list in format for csv of provisioned new ORCIDs:'));
+  $content = 'user_id,orcid';
+  foreach ($results['orcid-results']['provisioned'] as $result) {
+    $content .= "\n{$result['uid']},{$result['orcid']}";
+  }
+  drupal_set_message($content);
 }

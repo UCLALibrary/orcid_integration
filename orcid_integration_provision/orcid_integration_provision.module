@@ -61,7 +61,6 @@ function orcid_integration_provision_import_user($data, &$context) {
   $orcid = field_get_items('user', $account, 'field_orcid_id');
   if (!empty($orcid)) {
     $orcid = $orcid[0]['safe_value'];
-    drupal_set_message(t('%user already using ORCID: @orcid', array('@orcid' => $orcid, '%user' => $account->name)));
   }
   else {
     $orcid = FALSE;
@@ -80,7 +79,6 @@ function orcid_integration_provision_import_user($data, &$context) {
     if (empty($orcid)) {
       $claimed = FALSE;
       $orcid = orcid_integration_provision_new_account($account->mail, $data['first_name'], $data['last_name']);
-      drupal_set_message(t('ORCID @orcid just created. Please give up to 10 days before claiming on other sites.', array('@orcid' => $orcid)));
     }
 
     if (!empty($orcid)) {
@@ -107,14 +105,14 @@ function orcid_integration_provision_import_user($data, &$context) {
 
 function orcid_integration_provision_import_finished($success, $results, $operations) {
   drupal_set_message(t('Users have been imported and ORCIDs claimed.'));
-  drupal_set_message(t('Below list in format for csv of claiming pre-existing ORCIDs:'));
+  drupal_set_message(t('Below list in table format of claiming pre-existing ORCIDs:'));
   $content = '<table><tr><th>user_id</th><th>orcid</th></tr>';
   foreach ($results['orcid-results']['claimed'] as $result) {
     $content .= "<tr><td>{$result['uid']}</td><td>{$result['orcid']}</td></tr>";
   }
   $content .= '</table>';
   drupal_set_message($content);
-  drupal_set_message(t('Below list in format for csv of provisioned new ORCIDs:'));
+  drupal_set_message(t('Below list in table format of provisioned new ORCIDs:'));
   $content = '<table><tr><th>user_id</th><th>orcid</th></tr>';
   foreach ($results['orcid-results']['provisioned'] as $result) {
     $content .= "<tr><td>{$result['uid']}</td><td>{$result['orcid']}</td></tr>";

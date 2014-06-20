@@ -25,7 +25,7 @@ function orcid_integration_provision_drush_command() {
     'callback' => 'orcid_integration_provision_drush_provision_users',
     'description' => dt('Provision new/existing users from csv. Also create/claim orcid if one is not already attached.'),
     'arguments' => array(
-      'filepath' => dt('Required. Provide absolute path to csv file. It should contain a header with the following columns (in any order): first_name,last_name,user_id,email'),
+      'filepath' => dt('Required. Provide absolute path to csv file. It should contain a header with the following columns (in any order): first_name,last_name,username,email'),
     ),
     'aliases' => array('oip'),
   );
@@ -65,15 +65,21 @@ function orcid_integration_provision_drush_provision_users($filepath = '') {
 function orcid_integration_provision_drush_provision_users_import_finished($success, $results, $operations) {
   drupal_set_message(t('Users have been imported and ORCIDs claimed.'));
   drupal_set_message(t('Below list in format for csv of claiming pre-existing ORCIDs:'));
-  $content = 'user_id,orcid';
+  $content = 'username,orcid';
   foreach ($results['orcid-results']['claimed'] as $result) {
-    $content .= "\n{$result['uid']},{$result['orcid']}";
+    $content .= "\n{$result['username']},{$result['orcid']}";
   }
   drupal_set_message($content);
   drupal_set_message(t('Below list in format for csv of provisioned new ORCIDs:'));
-  $content = 'user_id,orcid';
+  $content = 'username,orcid';
   foreach ($results['orcid-results']['provisioned'] as $result) {
-    $content .= "\n{$result['uid']},{$result['orcid']}";
+    $content .= "\n{$result['username']},{$result['orcid']}";
+  }
+  drupal_set_message($content);
+  drupal_set_message(t('Below list in format for csv of provisioned new ORCIDs:'));
+  $content = 'username,email';
+  foreach ($results['orcid-results']['conflict'] as $result) {
+    $content .= "\n{$result['username']},{$result['email']}";
   }
   drupal_set_message($content);
 }

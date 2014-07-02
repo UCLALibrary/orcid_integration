@@ -101,7 +101,7 @@ function orcid_integration_map_account($form, &$form_state, $account) {
   else {
     $form['mapping']['mapping_options'] = array(
       '#type' => 'markup',
-      '#markup' => t('There are no existing orcids that match your email. Use the search to hopefully get more options'),
+      '#markup' => t('There are no existing orcids that match your email. Use the search email above to see if there is a match with another email address.'),
       '#prefix' => '<div id="orcid-map-options">',
       '#suffix' => '</div>',
     );

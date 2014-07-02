@@ -80,7 +80,7 @@ function orcid_integration_provision_drush_provision_users_import_finished($succ
   drupal_set_message(t('Below list in format for csv of accounts with multiple ORCIDs:'));
   $content = 'username,email';
   foreach ($results['orcid-results']['conflict'] as $result) {
-    $content .= "\n{$result['username']},{$result['email']}";
+    $content .= "\n{$result['username']},{$result['email']},{$result['conflicts']}";
   }
   drupal_set_message($content);
 }

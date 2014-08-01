@@ -44,6 +44,19 @@ Optional:
 
 And set up the permissions (from the user permissions page)
 
+DRUSH INTEGRATION
+-----------------
+
+The drush integration allows you to provision new accounts and map accounts to
+existing ORCIDs (if they can be matched by the account's email address). This
+integration is provided by the orcid_integration_provision module. To learn
+more about the  drush command, type the following into the command line:
+
+    drush help orcid-integration-provision
+
+You are required to provide a path to a CSV file that contains colums with the
+following headers (in any order): first_name, last_name, username, email.
+
 TROUBLESHOOTING
 ---------------
 

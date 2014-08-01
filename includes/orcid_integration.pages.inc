@@ -86,7 +86,11 @@ function orcid_integration_map_account($form, &$form_state, $account) {
   );
 
   foreach ($possible_accounts['orcid-search-results']['orcid-search-result'] as $key => $result) {
-    $options[$result['orcid-profile']['orcid-identifier']['path']] = _orcid_integration_generate_output_from_orcid_array($result);
+    foreach ($result['orcid-profile']['orcid-bio']['contact-details']['email'] as $email_key => $email_result) {
+      if ($email_result['value'] == $search_account->mail) {
+        $options[$result['orcid-profile']['orcid-identifier']['path']] = _orcid_integration_generate_output_from_orcid_array($result);
+      }
+    }
   }
   if (!empty($options)) {
     $form['mapping']['mapping_options'] = array(

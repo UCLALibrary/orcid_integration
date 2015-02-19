@@ -44,6 +44,10 @@ function orcid_integration_map_account($form, &$form_state, $account) {
     '#type' => 'textfield',
     '#title' => t('ORCID'),
     '#default_value' => '',
+  );
+  $form['existing']['fetch'] = array(
+    '#type' => 'button',
+    '#value' => t('Fetch ORCID Record'),
     '#ajax' => array(
       'callback' => 'orcid_integration_ajax_validate_orcid_callback',
       'wrapper' => 'orcid-sync-information',
@@ -77,6 +81,10 @@ function orcid_integration_map_account($form, &$form_state, $account) {
     '#title' => t('Email'),
     '#description' => t('Enter an email to change the search parameters'),
     '#default_value' => $search_account->mail,
+  );
+  $form['mapping']['search_ajax']['search'] = array(
+    '#type' => 'button',
+    '#value' => t('Search ORCID Record'),
     '#ajax' => array(
       'callback' => 'orcid_integration_ajax_search_orcid_callback',
       'wrapper' => 'orcid-map-options',

@@ -20,7 +20,7 @@ function orcid_integration_menu() {
     'access arguments' => array('administer site configuration'),
     'file' => 'includes/orcid_integration.admin.inc',
   );
-  
+
   $items['user/%user/orcid'] = array(
     'title' => 'ORCID',
     'page callback' => 'orcid_integration_view_page',

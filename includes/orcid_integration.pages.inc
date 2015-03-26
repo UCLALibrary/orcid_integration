@@ -10,7 +10,7 @@
  */
 function orcid_integration_view_page($account) {
   if (empty($account->field_orcid_id)) {
-    drupal_set_message(t('Your orcid ID is not yet set up'), 'warning');
+    // drupal_set_message(t('Your orcid ID is not yet set up'), 'warning');
     return drupal_get_form('orcid_integration_map_account', $account);
   }
   else {
@@ -68,7 +68,7 @@ function orcid_integration_map_account($form, &$form_state, $account) {
 
   $form['mapping'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Possible matches'),
+    '#title' => t('Search for Existing Account by Email'),
     '#collapsed' => FALSE,
   );
   $form['mapping']['search_ajax'] = array(
@@ -155,7 +155,7 @@ function orcid_integration_map_account($form, &$form_state, $account) {
       '#value' => t('Create'),
     );
   }
-  
+
   return $form;
 }
 
@@ -208,5 +208,6 @@ function orcid_integration_map_account_submit($form, &$form_state) {
   $account = user_load($values['account']->uid);
   $account->field_orcid_id[LANGUAGE_NONE][0]['value'] = $orcid_id;
   user_save($account);
-  drupal_set_message(t('Account now mapped to @orcid_id', array('@orcid_id' => $orcid_id)));
+  drupal_set_message(t('Account successfully linked to profile.'));
+  $form_state['redirect'] = 'user';
 }

@@ -10,11 +10,10 @@
  */
 function orcid_integration_view_page($account) {
   if (empty($account->field_orcid_id)) {
-    // drupal_set_message(t('Your orcid ID is not yet set up'), 'warning');
     return drupal_get_form('orcid_integration_map_account', $account);
   }
   else {
-    return '<div class="orcid-account-id">' . $account->field_orcid_id[LANGUAGE_NONE][0]['value'] . '</div>';
+    return drupal_get_form('orcid_integration_account_unlink', $account);
   }
   return '';
 }
@@ -209,5 +208,40 @@ function orcid_integration_map_account_submit($form, &$form_state) {
   $account->field_orcid_id[LANGUAGE_NONE][0]['value'] = $orcid_id;
   user_save($account);
   drupal_set_message(t('Account successfully linked to profile.'));
-  $form_state['redirect'] = 'user';
+  $form_state['redirect'] = 'user/' . $account->uid;
+}
+
+/**
+ * Displays the currently linked ORCID account with an unlink button
+ */
+function orcid_integration_account_unlink($form, &$form_state, $account) {
+  $user_orcid_url = variable_get('orcid_integration_main_url') . $account->field_orcid_id[LANGUAGE_NONE][0]['value'];
+  $form['orcid'] = array(
+    '#type' => 'item',
+    '#title' => t('Your linked ORCID Account'),
+    '#markup' => l(
+      $user_orcid_url,
+      $user_orcid_url,
+      $options = array(
+        'attributes' => array(
+          'target' => '_blank',
+        ),
+      )
+    ),
+  );
+  $form['unlink'] = array(
+    '#type' => 'submit',
+    '#value' => t('Unlink ORCID Account'),
+  );
+  return $form;
+}
+
+/**
+ * Summit handler for orcid_integration_account_unlink
+ */
+function orcid_integration_account_unlink_submit($form, &$form_state) {
+  $account = user_load($form_state['build_info']['args'][0]->uid);
+  $account->field_orcid_id = array();
+  user_save($account);
+  drupal_set_message(t('ORCID Account successfully unlinked.'));
 }

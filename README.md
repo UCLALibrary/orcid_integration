@@ -1,3 +1,5 @@
+This was a custom Drupal 7 module used on our old website, and is obsolete now.  Repository archived 2026-05-21 akohler.
+
 CONTENTS OF THIS FILE
 ---------------------
 
